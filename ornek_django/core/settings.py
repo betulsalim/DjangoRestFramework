@@ -10,119 +10,189 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+# =============================================================================
+# DJANGO SETTINGS.PY KONFİGÜRASYON DOSYASI
+# =============================================================================
+#
+# Bu dosya, Django projenizin tüm ayarlarını içeren merkezi konfigürasyon
+# dosyasıdır. Burada veritabanı, güvenlik, uygulamalar, middleware'ler
+# ve diğer tüm Django ayarları tanımlanır.
+#
+# Önemli Bölümler:
+# - Güvenlik ayarları (SECRET_KEY, DEBUG, ALLOWED_HOSTS)
+# - Uygulama tanımlamaları (INSTALLED_APPS)
+# - Veritabanı konfigürasyonu (DATABASES)
+# - Middleware yapılandırması (MIDDLEWARE)
+# - Şablon ayarları (TEMPLATES)
+# - Statik dosya ayarları (STATIC_URL)
+# - Dil ve zaman dilimi ayarları (LANGUAGE_CODE, TIME_ZONE)
+#
+# Bu dosya, Django projenizin davranışını tamamen kontrol eder.
+# =============================================================================
+
+# Path modülünü import ediyoruz - modern dosya yolu işlemleri için
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Proje kök dizinini belirliyoruz
+# __file__ mevcut dosyanın yolunu verir
+# .resolve() sembolik linkleri çözer
+# .parent.parent bir üst dizine çıkar (core/ klasöründen proje köküne)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# =============================================================================
+# GÜVENLİK AYARLARI
+# =============================================================================
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# Django'nun güvenlik anahtarı - PRODUCTION'DA DEĞİŞTİRİLMELİ!
+# Bu anahtar, Django'nun güvenlik işlemleri için kullanılır
+# (session şifreleme, CSRF token'ları, password reset linkleri vb.)
+# PRODUCTION ortamında bu anahtarı değiştirin ve güvenli bir yerde saklayın!
 SECRET_KEY = 'django-insecure-v0k@=8%*gl438^tiroy3q%zj0+9y@4ge5xgx#o(sl(4mhcf7t9'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# Debug modu - PRODUCTION'DA FALSE OLMALI!
+# True: Detaylı hata mesajları, otomatik yeniden yükleme
+# False: Güvenlik için hata detayları gizlenir
 DEBUG = True
 
+# İzin verilen host'lar listesi
+# Boş liste: Sadece localhost ve 127.0.0.1
+# PRODUCTION'da domain adlarınızı buraya ekleyin
 ALLOWED_HOSTS = []
 
 
-# Application definition
+# =============================================================================
+# UYGULAMA TANIMLAMALARI
+# =============================================================================
 
+# Django projesinde kullanılacak uygulamaların listesi
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
-    'products',  # Kendi uygulamanızı ekleyin
+    # Django'nun yerleşik uygulamaları
+    'django.contrib.admin',        # Admin paneli
+    'django.contrib.auth',         # Kullanıcı kimlik doğrulama sistemi
+    'django.contrib.contenttypes', # İçerik türü sistemi
+    'django.contrib.sessions',     # Oturum yönetimi
+    'django.contrib.messages',     # Mesaj sistemi
+    'django.contrib.staticfiles',  # Statik dosya yönetimi
+
+    # Üçüncü parti uygulamalar
+    'rest_framework',              # Django REST Framework
+
+    # Kendi uygulamalarınız
+    'products',                    # Ürünler uygulaması
 ]
+
+# Django REST Framework ayarları
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',  # Sayfalama sınıfı
+    'PAGE_SIZE': 10  # Her sayfada gösterilecek öğe sayısı
 }
 
+# =============================================================================
+# MIDDLEWARE YAPILANDIRMASI
+# =============================================================================
+
+# Middleware'ler, her HTTP isteğinde çalışan ara yazılımlardır
+# Sıralama önemlidir - yukarıdan aşağıya doğru çalışır
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',           # Güvenlik middleware'i
+    'django.contrib.sessions.middleware.SessionMiddleware',    # Oturum yönetimi
+    'django.middleware.common.CommonMiddleware',               # Genel middleware
+    'django.middleware.csrf.CsrfViewMiddleware',               # CSRF koruması
+    'django.contrib.auth.middleware.AuthenticationMiddleware', # Kimlik doğrulama
+    'django.contrib.messages.middleware.MessageMiddleware',    # Mesaj sistemi
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',  # Clickjacking koruması
 ]
 
+# Ana URL konfigürasyon dosyası
 ROOT_URLCONF = 'core.urls'
 
+# =============================================================================
+# ŞABLON AYARLARI
+# =============================================================================
+
+# Django şablon motoru ayarları
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',  # Şablon motoru
+        'DIRS': [],  # Ek şablon dizinleri (boş liste: sadece app'lerdeki templates)
+        'APP_DIRS': True,  # Her app'in kendi templates klasörünü kullanmasına izin ver
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+                # Şablonlarda otomatik olarak kullanılabilir değişkenler
+                'django.template.context_processors.request',    # request nesnesi
+                'django.contrib.auth.context_processors.auth',   # user nesnesi
+                'django.contrib.messages.context_processors.messages',  # mesajlar
             ],
         },
     },
 ]
 
+# WSGI uygulaması (eski protokol - ASGI tercih edilir)
 WSGI_APPLICATION = 'core.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# =============================================================================
+# VERİTABANI KONFİGÜRASYONU
+# =============================================================================
 
+# Veritabanı ayarları
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.sqlite3',  # SQLite veritabanı motoru
+        'NAME': BASE_DIR / 'db.sqlite3',         # Veritabanı dosyasının yolu
     }
 }
 
+# =============================================================================
+# ŞİFRE DOĞRULAMA AYARLARI
+# =============================================================================
 
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
+# Kullanıcı şifrelerinin doğrulanması için kullanılan validatörler
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',  # Kullanıcı bilgileriyle benzerlik kontrolü
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',  # Minimum uzunluk kontrolü
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',  # Yaygın şifre kontrolü
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',  # Sadece sayı kontrolü
     },
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
+# =============================================================================
+# ULUSLARARASILAŞTIRMA AYARLARI
+# =============================================================================
 
+# Dil kodu (en-us: İngilizce ABD)
 LANGUAGE_CODE = 'en-us'
 
+# Zaman dilimi (UTC: Koordineli Evrensel Zaman)
 TIME_ZONE = 'UTC'
 
+# Uluslararasılaştırma desteği
 USE_I18N = True
 
+# Zaman dilimi desteği
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
+# =============================================================================
+# STATİK DOSYA AYARLARI
+# =============================================================================
 
+# Statik dosyaların URL'i (CSS, JS, resimler vb.)
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+# =============================================================================
+# DİĞER AYARLAR
+# =============================================================================
 
+# Varsayılan birincil anahtar alan türü
+# BigAutoField: 64-bit integer, daha büyük ID'ler için
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
